@@ -7,8 +7,8 @@ import lombok.Data;
 @Builder(toBuilder = true)
 public class OutputDto {
     private String name;
-    private boolean status;
-    private String region;
+    private Boolean status;
     private String inn;
+    private String region;
     private String capital;
 }
