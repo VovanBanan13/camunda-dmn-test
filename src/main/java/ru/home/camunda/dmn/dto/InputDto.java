@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class InputDto {
     private String name;
-    private Integer region;
     private String inn;
+    private Integer region;
     private Long capital;
 }

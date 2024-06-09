@@ -1,5 +1,6 @@
 package ru.home.camunda.dmn.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.dmn.engine.DmnDecision;
 import org.camunda.bpm.dmn.engine.DmnDecisionTableResult;
@@ -10,15 +11,18 @@ import org.camunda.bpm.engine.variable.Variables;
 import org.camunda.bpm.model.dmn.Dmn;
 import org.camunda.bpm.model.dmn.DmnModelInstance;
 import org.camunda.commons.utils.IoUtil;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import ru.home.camunda.dmn.dto.InputDto;
 import ru.home.camunda.dmn.dto.OutputDto;
 
 import java.io.InputStream;
 
 @Slf4j
-@Component
-public class CamundaService {
+@Service
+@RequiredArgsConstructor
+public class DmnService {
+
+    private final ElasticSearchService elasticSearchService;
 
     public OutputDto executeDmn(InputDto inputDto) {
         log.info("START SERVICE");
@@ -35,12 +39,16 @@ public class CamundaService {
         DmnDecisionTableResult result = dmnEngine.evaluateDecisionTable(decision, variables);
         log.info("RESULT DMN: {}", result.getSingleResult().get("Status"));
 
-        return OutputDto.builder()
+        OutputDto outputDto = OutputDto.builder()
                 .name(inputDto.getName())
                 .inn(inputDto.getInn())
                 .region(inputDto.getRegion().toString())
                 .capital(inputDto.getCapital().toString())
                 .status((Boolean) result.getSingleResult().get("Status"))
                 .build();
+
+        elasticSearchService.save(outputDto);
+
+        return outputDto;
     }
 }
